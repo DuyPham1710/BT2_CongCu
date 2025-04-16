@@ -1,32 +1,22 @@
-name: Sync GitHub Issues to Redmine
+name: Create Redmine issue when GitHub issue is created
 
 on:
   issues:
     types: [opened]
 
 jobs:
-  create-redmine-issue:
+  sync-to-redmine:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Create Redmine Issue
-      env:
-        REDMINE_API_KEY: ${{ secrets.REDMINE_API_KEY }}
-        REDMINE_URL: ${{ secrets.REDMINE_URL }}
-        PROJECT_IDENTIFIER: bt2-congcu
-      run: |
-        echo "Creating Redmine issue from GitHub issue #${{ github.event.issue.number }}"
-
-        ISSUE_TITLE="${{ github.event.issue.title }}"
-        ISSUE_BODY="${{ github.event.issue.body }}"
-        
-        curl -X POST "$REDMINE_URL/issues.json" \
-          -H "Content-Type: application/json" \
-          -H "X-Redmine-API-Key: $REDMINE_API_KEY" \
-          -d "{
-                \"issue\": {
-                  \"project_id\": \"$PROJECT_IDENTIFIER\",
-                  \"subject\": \"$ISSUE_TITLE\",
-                  \"description\": \"$ISSUE_BODY\"
-                }
-              }"
+      - name: Create issue in Redmine
+        run: |
+          curl -X POST https://1927-14-187-80-86.ngrok-free.app/issues.json \
+            -H "Content-Type: application/json" \
+            -H "X-Redmine-API-Key: ${{ secrets.REDMINE_API_KEY }}" \
+            -d '{
+              "issue": {
+                "project_id": "8",
+                "subject": "${{ github.event.issue.title }}",
+                "description": "${{ github.event.issue.body }}"
+              }
+            }'
